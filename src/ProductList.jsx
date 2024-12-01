@@ -1,11 +1,32 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
-import addItem from './CartSlice';
-function ProductList() {
+import { useDispatch, useSelector } from 'react-redux';
+import { addItem } from './CartSlice';
+function ProductList(props) {
     const [showCart, setShowCart] = useState(false); 
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart, setAddedToCart] = useState({});
+    const dispatch = useDispatch();
+    const cart = useSelector((state) => state.cart.items);
+    const totalQuantity = useSelector((state) => state.cart.totalQuantity);
+    
+    const handleAddToCart = (product) => {
+        console.log("Items getting added...", product);
+        dispatch(addItem(product));
+        setAddedToCart((prevState) => ({
+            ...prevState,
+            [product.name]: "true", //set the product name as key value and value as true to indicate it's added to cart
+        }));
+    };
+    useEffect(() => {
+        const newAddedToCart = cart.reduce((acc, product) => {
+            acc[product.name] = "true";
+            return acc;
+        }, {});
+        setAddedToCart(newAddedToCart);
+    }, [cart]);
+
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -245,13 +266,6 @@ function ProductList() {
     const handleContinueShopping = (e) => {
         e.preventDefault();
         setShowCart(false);
-    };
-    const handleAddToCart = (product) => {
-        dispatch(addItem(product));
-        setAddedToCart((prevState) => ({
-            ...prevState,
-            [product.name]: true, // Set the product name as key and value as true to indicate it's added to cart
-        }));
     };
         return (
             <div>
